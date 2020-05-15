@@ -61,25 +61,25 @@ while cv2.waitKey(1) < 0:
     b = []
 
     if len(idxs) > 0:
-            for i in idxs.flatten():
-                (x, y) = (boxes[i][0], boxes[i][1])
-                (w, h) = (boxes[i][2], boxes[i][3])
-                a.append(x)
-                b.append(y)
+        for i in idxs.flatten():
+            (x, y) = (boxes[i][0], boxes[i][1])
+            (w, h) = (boxes[i][2], boxes[i][3])
+            a.append(x)
+            b.append(y)
                 
     distance= []
     nsd = []
     for i in range(0,len(a)-1):
         for k in range(1,len(a)):
             if(k==i):
-                break
+                continue
             else:
                 x_dist = (a[k] - a[i])
                 y_dist = (b[k] - b[i])
                 d = math.sqrt(x_dist * x_dist + y_dist * y_dist)
                 print("dist %d"%d)
                 distance.append(d)
-                if(d <=150):
+                if(d <=50):
                     nsd.append(i)
                     nsd.append(k)
                     cv2.line(image, (a[i],b[i]), (a[k],b[k]), (255,255,255), 1)
@@ -100,7 +100,7 @@ while cv2.waitKey(1) < 0:
     if len(idxs) > 0:
         for i in idxs.flatten():
             if (i in nsd):
-                break
+                continue
             else:
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
