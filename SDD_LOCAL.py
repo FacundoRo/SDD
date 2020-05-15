@@ -16,7 +16,7 @@ cap = cv2.VideoCapture('test_video.mp4')
 hasFrame, frame = cap.read()
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 #vid_writer = cv2.VideoWriter('town_out.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame.shape[1],frame.shape[0]))
-vid_writer = cv2.VideoWriter('salida.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (640,360))
+vid_writer = cv2.VideoWriter('salida.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 20, (640,360))
 
 
 while cv2.waitKey(1) < 0:
@@ -52,29 +52,29 @@ while cv2.waitKey(1) < 0:
                 classIDs.append(classID)
                 
     #idxs = cv2.dnn.NMSBoxes(boxes, confidences, 0.5,0.3)
-    idxs = cv2.dnn.NMSBoxes(boxes, confidences, 0.1,0.1)
+    idxs = cv2.dnn.NMSBoxes(boxes, confidences, 0.5,0.3)
     ind = []
     for i in range(0,len(classIDs)):
         if(classIDs[i]==0):
             ind.append(i)
     a = []
     b = []
-
+    idxs_list = idxs.flatten()
     if len(idxs) > 0:
-        for i in idxs.flatten():
+        for i in idxs_list:
             (x, y) = (boxes[i][0], boxes[i][1])
             (w, h) = (boxes[i][2], boxes[i][3])
             a.append(x)
             b.append(y)
-            cv2.rectangle(image, (x+5, y+5), (x + w-5, y + h-5), (255,255,255), 2)
-               
-                
+            cv2.rectangle(image, (x, y), (x + w, y + h), (255,255,255), 2)
+    print(idxs_list,len(idxs))   
+    print("a.len:%d"%len(a))            
     distance= []
     nsd = []
     for i in range(0,len(a)-1):
-        for k in range(1,len(a)):
+        for k in range(i+1,len(a)):
             if(k==i):
-                break
+                continue
             else:
                 x_dist = (a[k] - a[i])
                 y_dist = (b[k] - b[i])
@@ -82,6 +82,7 @@ while cv2.waitKey(1) < 0:
                 print("dist %d"%d)
                 distance.append(d)
                 if(d <=100):
+                    #nsd no social distancing
                     nsd.append(i)
                     nsd.append(k)
                     cv2.line(image, (a[i],b[i]), (a[k],b[k]), (255,255,255), 1)
@@ -89,27 +90,36 @@ while cv2.waitKey(1) < 0:
                     cv2.line(image, (a[i],b[i]), (a[k],b[k]), (255,0,0), 1)
                 nsd = list(dict.fromkeys(nsd))
                 print(nsd)
+
+    print("len.dist %d "%len(distance))
     color = (0, 0, 255) 
+    cc = 0
     for i in nsd:
-        (x, y) = (boxes[i][0], boxes[i][1])
-        (w, h) = (boxes[i][2], boxes[i][3])
+        cc += 1
+        j = idxs_list[i]
+        (x, y) = (boxes[j][0], boxes[j][1])
+        (w, h) = (boxes[j][2], boxes[j][3])
         cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
         text = "Cuidado!"
-        cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
-
+        cv2.putText(image, text, (x, y + 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 1)
+    print(cc)
 
     color = (0, 255, 0) 
+    cc = 0
+
     if len(idxs) > 0:
-        for i in idxs.flatten():
+        for i in range(len(a)):
             if (i in nsd):
                 continue
             else:
-                (x, y) = (boxes[i][0], boxes[i][1])
-                (w, h) = (boxes[i][2], boxes[i][3])
+                cc += 1
+                j = idxs_list[i]
+                (x, y) = (boxes[j][0], boxes[j][1])
+                (w, h) = (boxes[j][2], boxes[j][3])
                 cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
                 text = 'OK'
-                cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 2)   
-    
+                cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 1)   
+    print(cc)
     cv2.imshow("Social Distancing Detector", image)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
