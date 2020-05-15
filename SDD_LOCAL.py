@@ -66,20 +66,22 @@ while cv2.waitKey(1) < 0:
             (w, h) = (boxes[i][2], boxes[i][3])
             a.append(x)
             b.append(y)
+            cv2.rectangle(image, (x+5, y+5), (x + w-5, y + h-5), (255,255,255), 2)
+               
                 
     distance= []
     nsd = []
     for i in range(0,len(a)-1):
         for k in range(1,len(a)):
             if(k==i):
-                continue
+                break
             else:
                 x_dist = (a[k] - a[i])
                 y_dist = (b[k] - b[i])
                 d = math.sqrt(x_dist * x_dist + y_dist * y_dist)
                 print("dist %d"%d)
                 distance.append(d)
-                if(d <=50):
+                if(d <=100):
                     nsd.append(i)
                     nsd.append(k)
                     cv2.line(image, (a[i],b[i]), (a[k],b[k]), (255,255,255), 1)
