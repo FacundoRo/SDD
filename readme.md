@@ -2,7 +2,7 @@
 Proyecto realizado con python, deep learning and computer vision para monitorear el distanciamiento social.
 Credito de idea: LandingAI
 
-[![Mira el video](/images/cover.png)](https://drive.google.com/file/d/1AOnOwZZc6--YXz88jVEqRx66ecm4j1aD/view)
+[![Mira el video](/images/sshot2.jpg)](https://drive.google.com/file/d/1AOnOwZZc6--YXz88jVEqRx66ecm4j1aD/view)
 
 # Que es necesario para instalar
 Es recomendable crear un nuevo entorno virtual para este proyecto e instalar las dependencias. Se pueden seguir los siguientes pasos para descargar comenzar con el proyecto
