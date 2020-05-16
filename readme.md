@@ -56,7 +56,23 @@ dst=cv2.perspectiveTransform(pts,M)
 ```
 ![img](/images/transf.jpg)
 
-Una vez con las coordenadas de los **centroides de cada persona** transformados a un plano euclideo (vista aerea), procedemos a calcular la distancia entre todas las personas y las marcamos con "OK" y "CUIDADADO" en la imagen original del video.
+Lo primero es obtener los centroides de los **bounding boxes** que nos devuelve YOLOv3.
+```
+net = cv2.dnn.readNetFromDarknet("yolov3.cfg","yolov3.weights")
+...
+layerOutputs = net.forward(ln)
+...
+for output in layerOutputs:
+    for detection in output:
+        ...
+        box = detection[0:4] * np.array([W, H, W, H])
+        ...
+```
+Una vez con las coordenadas de los **centroides de cada persona** en una matrix de **numpy** las transformamos 
+```
+dst_pts=cv2.perspectiveTransform(pts_matrix,M)
+```
+a un plano euclideo (vista aerea) con la transformacion de perspectiva y procedemos a calcular la distancia entre todas las personas y las marcamos con "OK" y "CUIDADADO" en la imagen original del video.
 
 ![img](/images/dist.jpg)
 ![img](/images/dist2.png)
