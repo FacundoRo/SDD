@@ -56,7 +56,7 @@ dst=cv2.perspectiveTransform(pts,M)
 ```
 ![img](/images/transf.jpg)
 
-Lo primero es obtener los centroides de los **bounding boxes** que nos devuelve YOLOv3.
+Luego obtenemos los centroides de los **bounding boxes** que nos devuelve YOLOv3.
 ```
 net = cv2.dnn.readNetFromDarknet("yolov3.cfg","yolov3.weights")
 ...
