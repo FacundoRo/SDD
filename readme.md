@@ -18,7 +18,7 @@ git clone https://github.com/FacundoRo/SDD.git
 ```
 ## Packages
 
-Solo necesita numpy y opencv.
+Solo necesita **numpy** y **opencv**.
 
 Además es necesario descargar **yolov3.weights** de 
 https://drive.google.com/open?id=1R7Pd6IqPRN7ls2VcuP3EpsW87H_JjA_-
@@ -40,7 +40,7 @@ Los primeros 4 entre los 6 puntos requeridos se utilizan para marcar una region 
 * __Point4 (Ad)__: arriba a la derecha
 
 ![entrada](/images/sshot4.jpg)
-![Mira el video](/images/sshot2.jpg)
+![img](/images/sshot2.jpg)
 
 #### Últimos 2 puntos:
 Los últimos dos puntos se usan para marcar dos puntos separados 2mts en la región de interés. Por ejemplo, esto podría ser la altura de una persona (más fácil de marcar en el marco)
@@ -48,9 +48,18 @@ Los últimos dos puntos se usan para marcar dos puntos separados 2mts en la regi
 
 ## ¿Como funciona?
 
-El diagrama de bloques completo del algoritmo se puede ver a continuación.
-![Block Diagram](images/block_diagram.png)
+Lo primero es calcular la matriz **M** de la transformación de perspectiva, para tener una vista aerea. Esa transformacion **M** la usamos con la función de openCV 
+```
+M = cv2.getPerspectiveTransform( pts_cuatro, ...)
+dst=cv2.perspectiveTransform(pts,M)
+```
+![img](/images/transf.jpg)
 
+Una vez con las coordenadas de los **centroides de cada persona** transformados a un plano euclideo (vista aerea), procedemos a calcular la distancia entre todas las personas y las marcamos con "OK" y "CUIDADADO" en la imagen original del video.
+
+![img](/images/dist.jpg)
+![img](/images/dist2.png)
+![video_completo]https://drive.google.com/file/d/1AOnOwZZc6--YXz88jVEqRx66ecm4j1aD/view
 
 ## Advertencia
 
