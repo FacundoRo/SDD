@@ -1,5 +1,7 @@
 # Distanciamiento Social con Vision Computacional
-Proyecto realizado con python, deep learning and computer vision para monitorear el distanciamiento social.
+Proyecto realizado con python, deep learning y computer vision para monitorear el distanciamiento social.
+Para el **object recognition** hemos usado una darknet/YOLOv3 (https://pjreddie.com/darknet/yolo/) entrenada para reconocer 80 clases , concentrandonos en la clase 0 del archivo **coco.names** (clase **person**).
+
 Credito de idea: LandingAI
 
 Clickea en las imagenes para ver los videos del programa en acción.
