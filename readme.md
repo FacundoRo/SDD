@@ -2,6 +2,8 @@
 Proyecto realizado con python, deep learning and computer vision para monitorear el distanciamiento social.
 Credito de idea: LandingAI
 
+Clickea en las imagenes para ver los videos del programa en acción.
+
 [![Mira el video](/images/sshot2.jpg)](https://drive.google.com/file/d/1AOnOwZZc6--YXz88jVEqRx66ecm4j1aD/view)
 [![Mira el video](/images/sshot3.jpg)](https://drive.google.com/file/d/1_1vfHSt8v1fGQQq0VkCSmKEFYnwEgB2r/view)
 
@@ -14,7 +16,10 @@ git clone https://github.com/FacundoRo/SDD.git
 ```
 ## Packages
 
-Se necesita numpy y opencv
+Solo necesita numpy y opencv.
+
+Además es necesario descargar **yolov3.weights** de 
+https://drive.google.com/open?id=1R7Pd6IqPRN7ls2VcuP3EpsW87H_JjA_-
 
 
 ## Ejecutar el proyecto
@@ -32,9 +37,7 @@ Los primeros 4 entre los 6 puntos requeridos se utilizan para marcar una region 
 * __Point3 (Ai)__: arriba a la izquierda
 * __Point4 (Ad)__: arriba a la derecha
 
-![entrada](/images/sshot3.jpg)
-
-[![Mira el video](/images/sshot3.jpg)](https://drive.google.com/file/d/1_1vfHSt8v1fGQQq0VkCSmKEFYnwEgB2r/view)
+![entrada](/images/sshot4.jpg)
 
 #### Últimos 2 puntos:
 Los últimos dos puntos se usan para marcar dos puntos separados 2mts en la región de interés. Por ejemplo, esto podría ser la altura de una persona (más fácil de marcar en el marco)
