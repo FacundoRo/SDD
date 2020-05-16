@@ -7,15 +7,17 @@ import math
 #PROC_HEIGTH = 540
 #PROC_WIDTH_EXP = 360
 
-PROC_WIDTH = 640
-PROC_HEIGTH = 360
-PROC_WIDTH_EXP = 320
+lines_flag = False
 
-DEST_W = 100
-DEST_H = 100
+PROC_WIDTH = 860
+PROC_HEIGTH = 480
+PROC_WIDTH_EXP = 440
+
+DEST_W = 120
+DEST_H = 120
 
 VIDEO_INPUT = "test_video.mp4"
-VIDEO_OUTPUT = "test_video_out.mp4"
+VIDEO_OUTPUT = "town_out.avi"
 
 RE = (0,0,255)
 GR = (0,255,0)
@@ -48,7 +50,7 @@ def get_mouse_points(event, x, y, flags, param):
 def get_camera_perspective(dsize, src_points):
     #IMAGE_H = 100
     #IMAGE_W = 100
-    DX,DY = 100,250
+    DX,DY = 150,300
     IMAGE_H,IMAGE_W=dsize
     src = np.float32(np.array(src_points))
     dst = np.float32([[DX, DY+IMAGE_H], [DX+IMAGE_W,DY+ IMAGE_H], [DX, DY], [DX+IMAGE_W, DY]])
@@ -71,7 +73,9 @@ cap = cv2.VideoCapture(VIDEO_INPUT)
 hasFrame, frame = cap.read()
 net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
 #vid_writer = cv2.VideoWriter('town_out.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame.shape[1],frame.shape[0]))
-vid_writer = cv2.VideoWriter(VIDEO_OUTPUT,cv2.VideoWriter_fourcc('M','J','P','G'), 25, (PROC_WIDTH+PROC_WIDTH_EXP,PROC_HEIGTH))
+#vid_writer = cv2.VideoWriter(VIDEO_OUTPUT,cv2.VideoWriter_fourcc('M','J','P','G'), 25, (PROC_WIDTH+PROC_WIDTH_EXP,PROC_HEIGTH))
+vid_writer = cv2.VideoWriter(VIDEO_OUTPUT,cv2.VideoWriter_fourcc(*'XVID'), 25, (PROC_WIDTH+PROC_WIDTH_EXP,PROC_HEIGTH))
+
 
 cv2.namedWindow("image")
 cv2.setMouseCallback("image", get_mouse_points)
@@ -187,11 +191,15 @@ while cv2.waitKey(1) < 0:
                     #nsd no social distancing
                     nsd.append(i)
                     nsd.append(k)
-                    cv2.line(image_exp, (a[i],b[i]), (a[k],b[k]), (0,0,255), 1)
-                    cv2.circle(image_exp, (a[i],b[i]), DIST_MIN//2, (0,0,255), 1)                    
-                    cv2.circle(image_exp,  (a[k],b[k]),  DIST_MIN//2, (0,0,255), 1)
-                #else:
-                    #cv2.line(image, (a[i],b[i]), (a[k],b[k]), (200,0,0), 1)
+                    if lines_flag:
+                        cv2.line(image_exp, (a[i],b[i]), (a[k],b[k]), RE, 3)
+                    else:
+                        cv2.line(image_exp, (a[i],b[i]), (a[k],b[k]), RE, 1)
+                        cv2.circle(image_exp, (a[i],b[i]), DIST_MIN//2, RE, 1)                    
+                        cv2.circle(image_exp,  (a[k],b[k]),  DIST_MIN//2, RE, 1)
+                else:
+                    if lines_flag:
+                        cv2.line(image_exp, (a[i],b[i]), (a[k],b[k]), WHT, 1)
                 nsd = list(dict.fromkeys(nsd))
                 print(nsd)
 
@@ -205,7 +213,7 @@ while cv2.waitKey(1) < 0:
         (w, h) = (boxes[j][2], boxes[j][3])
         cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
         text = "Cuidado!"
-        cv2.putText(image, text, (x, y + 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 1)
+        cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 1)
 
         #marcarlos en la imagen warpeada
         cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, (0,0,255), 2)
@@ -243,6 +251,10 @@ while cv2.waitKey(1) < 0:
     cv2.imshow("Distanciamiento Social", image_out)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+    if cv2.waitKey(1) & 0xFF == ord('l'):
+        lines_flag = True
+    if cv2.waitKey(1) & 0xFF == ord('k'):
+        lines_flag = False   
     vid_writer.write(image_out)
 
 vid_writer.release()
