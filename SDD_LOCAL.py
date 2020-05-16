@@ -1,24 +1,30 @@
+# proyecto de vision computacional
+
 import numpy as np
 import time
 import cv2
 import math
 
-#PROC_WIDTH = 960
-#PROC_HEIGTH = 540
-#PROC_WIDTH_EXP = 360
 
 lines_flag = False
 
+#definimos el tamaño de salida del video
+#el video original es de 1920x1080 por lo que es necesario un resize
 PROC_WIDTH = 860
 PROC_HEIGTH = 480
+
+#el ancho de la pantalla extra para el bird-eye
 PROC_WIDTH_EXP = 440
 
+#dimensiones del cuadrado destino
 DEST_W = 120
 DEST_H = 120
 
+#video de prueba , el cual es una version reducida del original TownCentreXVID.avi
 VIDEO_INPUT = "test_video.mp4"
-VIDEO_OUTPUT = "test_video_out.avi"
+VIDEO_OUTPUT = "test_video_out2.avi"
 
+#definimos constantes que describen los colores en el BGR de openCV
 RE = (0,0,255)
 GR = (0,255,0)
 BL = (255,0,0)
@@ -26,10 +32,11 @@ BLK = (0,0,0)
 WHT = (255,255,255)
 YL = (0, 255, 255)
 
+#offset de transformación
 DX,DY = 150,300
 
+#esta funcion se lo asignamos a un callback asociado a la primera ventana
 mouse_pts = []
-
 def get_mouse_points(event, x, y, flags, param):
     # usado para marcar 4 puntos que representan un rectangulo
     # mas dos puntos que están a 1.80mts de distancia
@@ -46,36 +53,33 @@ def get_mouse_points(event, x, y, flags, param):
         if len(mouse_pts)==4:            
             cv2.putText(image, txt2 , (5, 35), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3) 
             cv2.putText(image, txt2 , (5, 35), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,144,155), 1)  
-        print("Point detected")
         print(mouse_pts)
 
+#AQUI CALCULAMOS LA MATRIX  M  DE LA TRANSFORMACION DE PERSPECTIVA
+#PARA ELLO USAMOS LOS CUATRO PUNTOS QUE ESCOGIO EL USUARIO COMO source
+#Y LUEGO DEFINIMOS UN CUADRADO EN LA IMAGEN DESTINO COMO destination
 def get_camera_perspective(dsize, src_points):
-    #IMAGE_H = 100
-    #IMAGE_W = 100
 
     IMAGE_H,IMAGE_W=dsize
     src = np.float32(np.array(src_points))
     dst = np.float32([[DX, DY+IMAGE_H], [DX+IMAGE_W,DY+ IMAGE_H], [DX, DY], [DX+IMAGE_W, DY]])
 
     M = cv2.getPerspectiveTransform(src, dst)
-    M_inv = cv2.getPerspectiveTransform(dst, src)
+    return M
 
-    return M, M_inv
-
+#constantes que apuntan a los archivos que definen la "darknet" implementada en openCV
 labelsPath = "./coco.names"
-LABELS = open(labelsPath).read().strip().split("\n")
-
-np.random.seed(42)
-COLORS = np.random.randint(0, 255, size=(len(LABELS), 3),
-	dtype="uint8")
-
 weightsPath = "yolov3.weights"
 configPath = "yolov3.cfg"
+net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
+
+#leemos el primer frame del video para que el usuario pueda
+#escoger los cuatro puntos que definin la transformacion de perspectiva
 cap = cv2.VideoCapture(VIDEO_INPUT)
 hasFrame, frame = cap.read()
-net = cv2.dnn.readNetFromDarknet(configPath, weightsPath)
-#vid_writer = cv2.VideoWriter('town_out.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame.shape[1],frame.shape[0]))
-#vid_writer = cv2.VideoWriter(VIDEO_OUTPUT,cv2.VideoWriter_fourcc('M','J','P','G'), 25, (PROC_WIDTH+PROC_WIDTH_EXP,PROC_HEIGTH))
+
+#vid_writer escribe frame por frame el video de salida,
+#las dimensiones del video de salida las definimos en las constantes del comienzo
 vid_writer = cv2.VideoWriter(VIDEO_OUTPUT,cv2.VideoWriter_fourcc(*'XVID'), 25, (PROC_WIDTH+PROC_WIDTH_EXP,PROC_HEIGTH))
 
 
@@ -87,7 +91,8 @@ txt1 = "ESCOGE 4 PUNTOS QUE REPRESENTEN UN CUADRADO EN EL SUELO"
 txt2 = "ESCOGE 2 PUNTOS QUE REPRESENTEN UNA SEPARACION DE 2 mts"
 cv2.putText(image, txt1, (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3)
 cv2.putText(image, txt1 , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, YL, 1) 
- 
+
+#esperamos a tener los 6 puntos mas un 7mo de confirmacion 
 while True:
     #image = frame
     cv2.imshow("image", image)
@@ -98,28 +103,34 @@ while True:
     first_frame_display = False
 four_points = mouse_pts
 
-M, Minv = get_camera_perspective((DEST_W,DEST_H), four_points[0:4])
+#calcular la matrix M
+M = get_camera_perspective((DEST_W,DEST_H), four_points[0:4])
 
 #calcular distancia minima en el espacio transformado
+#la distancia entre el 5to y 6to punto representan 2mts en la imagen original
+#se transforma esa distancia y se obtiene la DIST_MINIMA que se usa para verificar violaciones
+#del distanciamiento social
 p4arr = np.array(four_points,np.float)
 warp_dist= cv2.perspectiveTransform(np.array([p4arr[4:6,:]]),M)
 dist_x = warp_dist[0,1,0]-warp_dist[0,0,0]
 dist_y = warp_dist[0,1,1]-warp_dist[0,0,1]
-
 DIST_MIN = int(np.sqrt(dist_x*dist_x+dist_y*dist_y))
 
+#warpPerspective de la imagen original
 image_exp = cv2.warpPerspective(image, M, (PROC_WIDTH_EXP,PROC_HEIGTH) ) 
-print(image_exp.shape)
-#CREAR ARRAY EXPANSION
-#image_exp = np.zeros((PROC_HEIGTH,PROC_WIDTH_EXP,3), dtype=np.uint8)
 
-while cv2.waitKey(1) < 0:
-    
+#bucle que se repite hasta que se lea el ultimo frame
+#o se presione "q"
+while cv2.waitKey(1) < 0:   
+
+    #leer un frame
     ret,image=cap.read()
     if( not ret ):
         break
+
     image=cv2.resize(image,(PROC_WIDTH,PROC_HEIGTH))
 
+    #dibujamos un cuadrado amarillo en la imagen original
     pts_ord = [0,1,3,2,0]
     for i in range(0,4):
         j =pts_ord[i]
@@ -128,12 +139,11 @@ while cv2.waitKey(1) < 0:
         cv2.line(image,four_points[j],four_points[k],YL,1 )
         print(i)
     
-    
     image_exp = cv2.warpPerspective(image, M, (PROC_WIDTH_EXP,PROC_HEIGTH) )
     cv2.putText(image_exp, "VISTA AEREA" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3) 
     cv2.putText(image_exp, "VISTA AEREA" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,144,155), 1) 
 
-    #puntos de correspondencia
+    #dibujamos un cuadrado amarillo en la imagen destino
     cv2.circle(image_exp, (DX, DY+DEST_H), 3, YL, 3)
     cv2.circle(image_exp, (DX+DEST_W,DY+ DEST_H), 3, YL, 3)
     cv2.circle(image_exp, (DX, DY), 3, YL, 3)
@@ -143,15 +153,17 @@ while cv2.waitKey(1) < 0:
     cv2.line(image_exp,(DX+DEST_W, DY),(DX, DY),YL,1 )
     cv2.line(image_exp,(DX, DY),(DX, DY+DEST_H),YL,1 )
 
+    #adaptamos el frame leido para alimentar a YOLOv3
     (H, W) = image.shape[:2]
     ln = net.getLayerNames()
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
     blob = cv2.dnn.blobFromImage(image, 1 / 300.0, (416, 416),swapRB=True, crop=False)
     net.setInput(blob)
     start = time.time()
+
+    #aqui obtenemos las detecciones en las 3 capas de salida
     layerOutputs = net.forward(ln)
     end = time.time()
-    print("Frame Prediction Time : {:.6f} seconds".format(end - start))
     boxes = []
     confidences = []
     classIDs = []
@@ -172,16 +184,20 @@ while cv2.waitKey(1) < 0:
     #crear un array con las coordenadas de cada persona
     bmat = np.array(boxes,np.float)
     center_mat = np.array([bmat[:,4:6]])
-    warp_center = np.array(cv2.perspectiveTransform(center_mat,M) , dtype=np.int)
-#    for a in range(1,len(boxes)):
-#        cv2.circle(image_exp, (warp_center[0,a,0],warp_center[0,a,1]), 3, (255,255,255), 2)    
+    warp_center = np.array(cv2.perspectiveTransform(center_mat,M) , dtype=np.int) 
 
 
+    #los bounding boxes pueden estar repetidos porque hay 3 capas de salida trabajando a diferente escala
+    #para eso se escoge los mejores candidatos con la funcion
+    #Non Maximum Suppression (NMSBoxes())
     idxs = cv2.dnn.NMSBoxes(boxes, confidences, 0.5,0.3)
     ind = []
     for i in range(0,len(classIDs)):
         if(classIDs[i]==0):
             ind.append(i)
+
+    #las listas a y b las llenamos con las coordenadas de los centroides
+    #transformados (warp_center[])
     a = []
     b = []
     idxs_list = idxs.flatten()
@@ -192,10 +208,9 @@ while cv2.waitKey(1) < 0:
             (wx, wy) = (warp_center[0,i,0], warp_center[0,i,1])
             a.append(wx)
             b.append(wy)
-            #cv2.rectangle(image, (x, y), (x + w, y + h), (255,255,255), 2)
             cv2.circle(image, (boxes[i][4],boxes[i][5]), 4, (255,255,255), 2)
-    print(idxs_list,len(idxs))   
-    print("a.len:%d"%len(a))            
+
+    #nsd tiene la lista de indices de personas que no respetan el distanciamiento
     distance= []
     nsd = []
     for i in range(0,len(a)-1):
@@ -206,7 +221,6 @@ while cv2.waitKey(1) < 0:
                 x_dist = (a[k] - a[i])
                 y_dist = (b[k] - b[i])
                 d = math.sqrt(x_dist * x_dist + y_dist * y_dist)
-                print("dist %d"%d)
                 distance.append(d)
                 if(d <= DIST_MIN):
                     #nsd no social distancing
@@ -224,50 +238,36 @@ while cv2.waitKey(1) < 0:
                 nsd = list(dict.fromkeys(nsd))
                 print(nsd)
 
-    print("len.dist %d "%len(distance))
-    color = (0, 0, 255) 
-    cc = 0
+
     for i in nsd:
-        cc += 1
         j = idxs_list[i]
         (x, y) = (boxes[j][0], boxes[j][1])
         (w, h) = (boxes[j][2], boxes[j][3])
-        cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
+        cv2.rectangle(image, (x, y), (x + w, y + h), RE, 2)
         text = "Cuidado!"
-        cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 1)
+        cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, RE, 1)
 
         #marcarlos en la imagen warpeada
-        cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, (0,0,255), 2)
-    print(cc)
-
-    color = (0, 255, 0) 
-    cc = 0
+        cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, RE, 2)
 
     if len(idxs) > 0:
         for i in range(len(a)):
             if (i in nsd):
                 continue
             else:
-                cc += 1
                 j = idxs_list[i]
                 (x, y) = (boxes[j][0], boxes[j][1])
                 (w, h) = (boxes[j][2], boxes[j][3])
-                cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
+                cv2.rectangle(image, (x, y), (x + w, y + h), GR, 2)
                 text = 'OK'
-                cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 1)
+                cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, GR, 1)
 
                 #marcarlos en la imagen warpeada
-                cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, (0,255,0), 2)   
-    print(cc)
-    #expande la imagen
-       
-
-
+                cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, GR, 2)   
+      
+    #concatenamos la imagen original y transformada en una sola imagen
     image_out = np.concatenate((image,image_exp), axis = 1)
-    print(image_out.shape)
-    print(image.dtype)
-    print(image_exp.dtype)
-    print(image_out.dtype)
+
     cv2.imshow("Distanciamiento Social", image_out)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
