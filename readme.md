@@ -64,4 +64,13 @@ Una vez con las coordenadas de los **centroides de cada persona** transformados 
 ## Advertencia
 
 Ejecutar desde PC debido a que colab tiene algunas restricciones.
+
+Integrantes del grupo:
+```
+Facundo Rodriguez
+Guillermo Ruiz
+Edwin Contreras
+```
+
+
 __Créditos de idea: LandingAI__
