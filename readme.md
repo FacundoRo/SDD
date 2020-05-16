@@ -38,6 +38,7 @@ Los primeros 4 entre los 6 puntos requeridos se utilizan para marcar una region 
 * __Point4 (Ad)__: arriba a la derecha
 
 ![entrada](/images/sshot4.jpg)
+![Mira el video](/images/sshot2.jpg)
 
 #### Últimos 2 puntos:
 Los últimos dos puntos se usan para marcar dos puntos separados 2mts en la región de interés. Por ejemplo, esto podría ser la altura de una persona (más fácil de marcar en el marco)
