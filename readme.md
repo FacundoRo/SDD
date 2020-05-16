@@ -1,5 +1,8 @@
 # Proyecto Final del curso Visión Computacional
 # Distanciamiento Social con Vision Computacional
+
+( codigo fuente aqui https://github.com/FacundoRo/SDD )
+
 Proyecto realizado con python, deep learning y computer vision para monitorear el distanciamiento social.
 Para el **object recognition** hemos usado una darknet/YOLOv3 (https://pjreddie.com/darknet/yolo/) entrenada para reconocer 80 clases , concentrandonos en la clase 0 del archivo **coco.names** (clase **person**).
 
