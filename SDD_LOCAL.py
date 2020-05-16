@@ -14,8 +14,15 @@ PROC_WIDTH_EXP = 320
 DEST_W = PROC_HEIGTH // 3
 DEST_H = PROC_HEIGTH // 3
 
-VIDEO_INPUT = "test_video.mp4"
-VIDEO_OUTPUT = "video_ped_out.mp4"
+VIDEO_INPUT = "TownCentreXVID.avi"
+VIDEO_OUTPUT = "TownCentre_out.mp4"
+
+RE = (0,0,255)
+GR = (0,255,0)
+BL = (255,0,0)
+BLK = (0,0,0)
+WHT = (255,255,255)
+YL = (0, 255, 255)
 
 mouse_pts = []
 
@@ -25,10 +32,16 @@ def get_mouse_points(event, x, y, flags, param):
     global mouseX, mouseY, mouse_pts
     if event == cv2.EVENT_LBUTTONDOWN:
         mouseX, mouseY = x, y
-        cv2.circle(image, (x, y), 7, (0, 255, 255), 3)
         if "mouse_pts" not in globals():
             mouse_pts = []
+        if len(mouse_pts)>=4:
+            cv2.circle(image, (x, y), 7, BL, 3)
+        else:
+            cv2.circle(image, (x, y), 7, YL, 3)
         mouse_pts.append((x, y))
+        if len(mouse_pts)==4:            
+            cv2.putText(image, txt2 , (5, 35), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3) 
+            cv2.putText(image, txt2 , (5, 35), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,144,155), 1)  
         print("Point detected")
         print(mouse_pts)
 
@@ -65,11 +78,9 @@ cv2.setMouseCallback("image", get_mouse_points)
 num_mouse_points = 0
 image=cv2.resize(frame,(PROC_WIDTH,PROC_HEIGTH))
 txt1 = "ESCOGE 4 PUNTOS QUE REPRESENTEN UN CUADRADO EN EL SUELO"
-txt2 = "LUEGO 2 PUNTOS QUE REPRESENTEN UNA SEPARACION DE 1.8mts"
-cv2.putText(image, txt1, (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, (0,0,0), 3)
-cv2.putText(image, txt2 , (5, 35), cv2.FONT_HERSHEY_SIMPLEX,0.5, (0,0,0), 3) 
-cv2.putText(image, txt1 , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,255,255), 1)
-cv2.putText(image, txt2 , (5, 35), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,255,255), 1)   
+txt2 = "ESCOGE 2 PUNTOS QUE REPRESENTEN UNA SEPARACION DE 2 mts"
+cv2.putText(image, txt1, (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3)
+cv2.putText(image, txt1 , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, YL, 1) 
  
 while True:
     #image = frame
@@ -82,6 +93,14 @@ while True:
 four_points = mouse_pts
 
 M, Minv = get_camera_perspective((DEST_W,DEST_H), four_points[0:4])
+
+#calcular distancia minima en el espacio transformado
+p4arr = np.array(four_points,np.float)
+warp_dist= cv2.perspectiveTransform(np.array([p4arr[4:6,:]]),M)
+dist_x = warp_dist[0,1,0]-warp_dist[0,0,0]
+dist_y = warp_dist[0,1,1]-warp_dist[0,0,1]
+
+DIST_MIN = np.sqrt(dist_x*dist_x+dist_y*dist_y)
 
 image_exp = cv2.warpPerspective(image, M, (PROC_WIDTH_EXP,PROC_HEIGTH) ) 
 print(image_exp.shape)
@@ -96,6 +115,8 @@ while cv2.waitKey(1) < 0:
     image=cv2.resize(image,(PROC_WIDTH,PROC_HEIGTH))
     
     image_exp = cv2.warpPerspective(image, M, (PROC_WIDTH_EXP,PROC_HEIGTH) )
+    cv2.putText(image_exp, "Vista aerea" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3) 
+    cv2.putText(image_exp, "Vista aerea" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,144,155), 1) 
 
     (H, W) = image.shape[:2]
     ln = net.getLayerNames()
@@ -167,8 +188,8 @@ while cv2.waitKey(1) < 0:
                     nsd.append(i)
                     nsd.append(k)
                     cv2.line(image_exp, (a[i],b[i]), (a[k],b[k]), (0,0,255), 1)
-                    cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, (0,0,255), 2)                    
-                    cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, (0,0,255), 2)
+                    cv2.circle(image_exp, (a[i],b[i]), DIST_MIN//2, (0,0,255), 1)                    
+                    cv2.circle(image_exp,  (a[k],b[k]),  DIST_MIN//2, (0,0,255), 1)
                 #else:
                     #cv2.line(image, (a[i],b[i]), (a[k],b[k]), (200,0,0), 1)
                 nsd = list(dict.fromkeys(nsd))
