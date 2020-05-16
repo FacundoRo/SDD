@@ -1,4 +1,11 @@
-# proyecto de vision computacional
+# proyecto final del curso vision computacional
+# del diplomado IA
+
+#REQUISITOS
+#!git clone https://github.com/FacundoRo/SDD.git
+
+#download yolov3.weights del url 
+# https://drive.google.com/file/d/1R7Pd6IqPRN7ls2VcuP3EpsW87H_JjA_-/view
 
 import numpy as np
 import time
