@@ -11,11 +11,11 @@ PROC_WIDTH = 640
 PROC_HEIGTH = 360
 PROC_WIDTH_EXP = 320
 
-DEST_W = PROC_HEIGTH // 3
-DEST_H = PROC_HEIGTH // 3
+DEST_W = 100
+DEST_H = 100
 
-VIDEO_INPUT = "TownCentreXVID.avi"
-VIDEO_OUTPUT = "TownCentre_out.mp4"
+VIDEO_INPUT = "test_video.mp4"
+VIDEO_OUTPUT = "test_video_out.mp4"
 
 RE = (0,0,255)
 GR = (0,255,0)
@@ -115,8 +115,8 @@ while cv2.waitKey(1) < 0:
     image=cv2.resize(image,(PROC_WIDTH,PROC_HEIGTH))
     
     image_exp = cv2.warpPerspective(image, M, (PROC_WIDTH_EXP,PROC_HEIGTH) )
-    cv2.putText(image_exp, "Vista aerea" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3) 
-    cv2.putText(image_exp, "Vista aerea" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,144,155), 1) 
+    cv2.putText(image_exp, "VISTA AEREA" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3) 
+    cv2.putText(image_exp, "VISTA AEREA" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,144,155), 1) 
 
     (H, W) = image.shape[:2]
     ln = net.getLayerNames()
