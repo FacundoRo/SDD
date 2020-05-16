@@ -3,7 +3,7 @@ Proyecto realizado con python, deep learning and computer vision para monitorear
 Credito de idea: LandingAI
 
 [![Mira el video](/images/sshot2.jpg)](https://drive.google.com/file/d/1AOnOwZZc6--YXz88jVEqRx66ecm4j1aD/view)
-[![Mira el video](/images/sshot4.jpg)](video_ped.mp4)
+[![Mira el video](/images/sshot3.jpg)](https://drive.google.com/file/d/1_1vfHSt8v1fGQQq0VkCSmKEFYnwEgB2r/view)
 
 # Que es necesario para instalar
 Es recomendable crear un nuevo entorno virtual para este proyecto e instalar las dependencias. Se pueden seguir los siguientes pasos para descargar comenzar con el proyecto
@@ -32,15 +32,16 @@ Los primeros 4 entre los 6 puntos requeridos se utilizan para marcar una region 
 * __Point3 (Ai)__: arriba a la izquierda
 * __Point4 (Ad)__: arriba a la derecha
 
+![entrada](/images/sshot3.jpg)
+
+[![Mira el video](/images/sshot3.jpg)](https://drive.google.com/file/d/1_1vfHSt8v1fGQQq0VkCSmKEFYnwEgB2r/view)
 
 #### Últimos 2 puntos:
 Los últimos dos puntos se usan para marcar dos puntos separados 2mts en la región de interés. Por ejemplo, esto podría ser la altura de una persona (más fácil de marcar en el marco)
 
-El siguiente gif ayudará a comprender mejor los puntos
-![mark4points](images/mark4points.gif)
-![mark4points](images/pedestrian.gif)
 
 ## ¿Como funciona?
+
 El diagrama de bloques completo del algoritmo se puede ver a continuación.
 ![Block Diagram](images/block_diagram.png)
 
