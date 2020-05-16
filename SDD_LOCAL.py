@@ -17,7 +17,7 @@ DEST_W = 120
 DEST_H = 120
 
 VIDEO_INPUT = "test_video.mp4"
-VIDEO_OUTPUT = "town_out.avi"
+VIDEO_OUTPUT = "salida.avi"
 
 RE = (0,0,255)
 GR = (0,255,0)
@@ -25,6 +25,8 @@ BL = (255,0,0)
 BLK = (0,0,0)
 WHT = (255,255,255)
 YL = (0, 255, 255)
+
+DX,DY = 150,300
 
 mouse_pts = []
 
@@ -50,7 +52,7 @@ def get_mouse_points(event, x, y, flags, param):
 def get_camera_perspective(dsize, src_points):
     #IMAGE_H = 100
     #IMAGE_W = 100
-    DX,DY = 150,300
+
     IMAGE_H,IMAGE_W=dsize
     src = np.float32(np.array(src_points))
     dst = np.float32([[DX, DY+IMAGE_H], [DX+IMAGE_W,DY+ IMAGE_H], [DX, DY], [DX+IMAGE_W, DY]])
@@ -117,10 +119,29 @@ while cv2.waitKey(1) < 0:
     if( not ret ):
         break
     image=cv2.resize(image,(PROC_WIDTH,PROC_HEIGTH))
+
+    pts_ord = [0,1,3,2,0]
+    for i in range(0,4):
+        j =pts_ord[i]
+        k =pts_ord[i+1]
+        cv2.circle(image, four_points[i],6, YL, 3)
+        cv2.line(image,four_points[j],four_points[k],YL,1 )
+        print(i)
+    
     
     image_exp = cv2.warpPerspective(image, M, (PROC_WIDTH_EXP,PROC_HEIGTH) )
     cv2.putText(image_exp, "VISTA AEREA" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, BLK, 3) 
     cv2.putText(image_exp, "VISTA AEREA" , (5, 15), cv2.FONT_HERSHEY_SIMPLEX,0.5, (255,144,155), 1) 
+
+    #puntos de correspondencia
+    cv2.circle(image_exp, (DX, DY+DEST_H), 3, YL, 3)
+    cv2.circle(image_exp, (DX+DEST_W,DY+ DEST_H), 3, YL, 3)
+    cv2.circle(image_exp, (DX, DY), 3, YL, 3)
+    cv2.circle(image_exp, (DX+DEST_W, DY), 3, YL, 3)
+    cv2.line(image_exp,(DX, DY+DEST_H),(DX+DEST_W,DY+ DEST_H),YL,1 )
+    cv2.line(image_exp,(DX+DEST_W,DY+ DEST_H),(DX+DEST_W, DY),YL,1 )
+    cv2.line(image_exp,(DX+DEST_W, DY),(DX, DY),YL,1 )
+    cv2.line(image_exp,(DX, DY),(DX, DY+DEST_H),YL,1 )
 
     (H, W) = image.shape[:2]
     ln = net.getLayerNames()
@@ -239,8 +260,7 @@ while cv2.waitKey(1) < 0:
                 cv2.circle(image_exp, (warp_center[0,j,0],warp_center[0,j,1]), 3, (0,255,0), 2)   
     print(cc)
     #expande la imagen
-    
-    
+       
 
 
     image_out = np.concatenate((image,image_exp), axis = 1)
