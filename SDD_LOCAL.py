@@ -17,7 +17,7 @@ DEST_W = 120
 DEST_H = 120
 
 VIDEO_INPUT = "test_video.mp4"
-VIDEO_OUTPUT = "salida.avi"
+VIDEO_OUTPUT = "test_video_out.avi"
 
 RE = (0,0,255)
 GR = (0,255,0)
