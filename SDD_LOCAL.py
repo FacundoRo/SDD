@@ -100,7 +100,7 @@ warp_dist= cv2.perspectiveTransform(np.array([p4arr[4:6,:]]),M)
 dist_x = warp_dist[0,1,0]-warp_dist[0,0,0]
 dist_y = warp_dist[0,1,1]-warp_dist[0,0,1]
 
-DIST_MIN = np.sqrt(dist_x*dist_x+dist_y*dist_y)
+DIST_MIN = int(np.sqrt(dist_x*dist_x+dist_y*dist_y))
 
 image_exp = cv2.warpPerspective(image, M, (PROC_WIDTH_EXP,PROC_HEIGTH) ) 
 print(image_exp.shape)
